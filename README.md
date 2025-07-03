@@ -7,7 +7,7 @@ A scalable file server built with **FastAPI** and **MinIO** for the Microsoft Az
 - **API Server**: FastAPI with async/await support
 - **Storage Backend**: MinIO (S3-compatible object storage)
 - **Containerization**: Docker & Docker Compose
-- **CLI Tool**: Python Click-based command-line interface
+- **CLI Tool**: Python-based command-line interface
 - **Documentation**: Auto-generated OpenAPI/Swagger docs
 
 ## 🚀 Features

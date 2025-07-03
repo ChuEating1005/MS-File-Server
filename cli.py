@@ -7,10 +7,8 @@ A command-line interface for interacting with the MS File Server
 import os
 import sys
 import requests
-import click
 from pathlib import Path
 from typing import Optional
-import json
 
 
 class FileServerClient:
