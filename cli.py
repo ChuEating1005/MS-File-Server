@@ -76,16 +76,7 @@ class FileServerClient:
         
         return response.json()
     
-    def get_file_info(self, filename: str) -> dict:
-        """Get file information"""
-        response = requests.get(f"{self.api_base}/files/{filename}/info")
-        
-        if response.status_code == 404:
-            raise Exception(f"File not found: {filename}")
-        elif response.status_code != 200:
-            response.raise_for_status()
-        
-        return response.json()
+
     
     def health_check(self) -> dict:
         """Check server health"""
@@ -115,29 +106,26 @@ def print_banner():
     print("=" * 60)
     print("🚀 MS File Server - Interactive CLI Tool")
     print("=" * 60)
-    print("Welcome to the Microsoft Azure Map Backend File Server!")
+    print("Welcome to the Microsoft File Server!")
     print("")
 
 
-def print_menu():
-    """Print main menu options"""
+def print_commands():
+    """Print available commands"""
     print("\n📋 Available Commands:")
-    print("  1. Upload file")
-    print("  2. Download file") 
-    print("  3. List all files")
-    print("  4. Delete file")
-    print("  5. Get file info")
-    print("  6. Check server health")
-    print("  7. Help")
-    print("  8. Exit")
-    print("-" * 40)
+    print("  upload <file_path>    - Upload a file to the server")
+    print("  download <file_name>  - Download a file from the server") 
+    print("  list                  - List all files on the server")
+    print("  delete <file_name>    - Delete a file from the server")
+    print("  help                  - Show this help message")
+    print("  exit                  - Exit the application")
+    print("-" * 50)
 
 
-def handle_upload(client: FileServerClient):
+def handle_upload(client: FileServerClient, file_path: str):
     """Handle file upload"""
-    file_path = input("📤 Enter file path to upload: ").strip()
     if not file_path:
-        print("❌ Error: File path cannot be empty")
+        print("❌ Error: Please specify a file path. Usage: upload <file_path>")
         return
     
     try:
@@ -150,20 +138,15 @@ def handle_upload(client: FileServerClient):
         print(f"❌ Error: {e}")
 
 
-def handle_download(client: FileServerClient):
+def handle_download(client: FileServerClient, filename: str):
     """Handle file download"""
-    filename = input("📥 Enter filename to download: ").strip()
     if not filename:
-        print("❌ Error: Filename cannot be empty")
+        print("❌ Error: Please specify a filename. Usage: download <file_name>")
         return
-    
-    output_path = input("💾 Enter output path (press Enter for current directory): ").strip()
-    if not output_path:
-        output_path = None
     
     try:
         print(f"Downloading {filename}...")
-        result_path = client.download_file(filename, output_path)
+        result_path = client.download_file(filename)
         print(f"✅ File downloaded to: {result_path}")
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -194,11 +177,10 @@ def handle_list(client: FileServerClient):
         print(f"❌ Error: {e}")
 
 
-def handle_delete(client: FileServerClient):
+def handle_delete(client: FileServerClient, filename: str):
     """Handle file deletion"""
-    filename = input("🗑️ Enter filename to delete: ").strip()
     if not filename:
-        print("❌ Error: Filename cannot be empty")
+        print("❌ Error: Please specify a filename. Usage: delete <file_name>")
         return
     
     # Confirmation
@@ -214,55 +196,18 @@ def handle_delete(client: FileServerClient):
         print(f"❌ Error: {e}")
 
 
-def handle_info(client: FileServerClient):
-    """Handle file info retrieval"""
-    filename = input("ℹ️ Enter filename to get info: ").strip()
-    if not filename:
-        print("❌ Error: Filename cannot be empty")
-        return
+
+
+
+def parse_command(command_line: str):
+    """Parse command line input into command and arguments"""
+    parts = command_line.strip().split(None, 1)
+    if not parts:
+        return None, None
     
-    try:
-        file_info = client.get_file_info(filename)
-        
-        print("\n📊 File Information:")
-        print(f"   📝 Name: {file_info['name']}")
-        print(f"   📏 Size: {format_file_size(file_info['size'])} ({file_info['size']:,} bytes)")
-        print(f"   📅 Last Modified: {file_info['last_modified']}")
-        print(f"   📄 Content Type: {file_info['content_type']}")
-        
-    except Exception as e:
-        print(f"❌ Error: {e}")
-
-
-def handle_health(client: FileServerClient):
-    """Handle health check"""
-    try:
-        result = client.health_check()
-        print(f"✅ Server Status: {result['status']}")
-        print(f"   🔧 Service: {result['service']}")
-    except requests.exceptions.ConnectionError:
-        print("❌ Error: Cannot connect to server. Is it running?")
-    except Exception as e:
-        print(f"❌ Error: {e}")
-
-
-def print_help():
-    """Print help information"""
-    print("\n📖 Help - Command Descriptions:")
-    print("=" * 50)
-    print("1. Upload file     - Upload a local file to the server")
-    print("2. Download file   - Download a file from the server")
-    print("3. List all files  - Show all files stored on the server")
-    print("4. Delete file     - Remove a file from the server")
-    print("5. Get file info   - Display detailed file information")
-    print("6. Check health    - Verify server connectivity")
-    print("7. Help            - Show this help message")
-    print("8. Exit            - Quit the application")
-    print("")
-    print("💡 Tips:")
-    print("- Use relative or absolute file paths for uploads")
-    print("- Downloaded files are saved to current directory by default")
-    print("- File deletion requires confirmation for safety")
+    command = parts[0].lower()
+    args = parts[1] if len(parts) > 1 else ""
+    return command, args
 
 
 def main():
@@ -280,40 +225,47 @@ def main():
         print(f"🔗 Connected to: {server_url}")
         
         # Test connection
-        client.health_check()
-        print("✅ Server connection successful!")
+        try:
+            client.health_check()
+            print("✅ Server connection successful!")
+        except:
+            print("⚠️ Warning: Could not verify server connection, but proceeding...")
         
     except Exception as e:
         print(f"❌ Failed to connect to server: {e}")
         print("Please make sure the server is running and try again.")
         return
     
+    # Show available commands
+    print_commands()
+    
     # Main interactive loop
     while True:
         try:
-            print_menu()
-            choice = input("👉 Enter your choice (1-8): ").strip()
+            command_line = input("\n$ ").strip()
             
-            if choice == '1':
-                handle_upload(client)
-            elif choice == '2':
-                handle_download(client)
-            elif choice == '3':
+            if not command_line:
+                continue
+                
+            command, args = parse_command(command_line)
+            
+            if command == 'upload':
+                handle_upload(client, args)
+            elif command == 'download':
+                handle_download(client, args)
+            elif command == 'list':
                 handle_list(client)
-            elif choice == '4':
-                handle_delete(client)
-            elif choice == '5':
-                handle_info(client)
-            elif choice == '6':
-                handle_health(client)
-            elif choice == '7':
-                print_help()
-            elif choice == '8':
+            elif command == 'delete':
+                handle_delete(client, args)
+            elif command == 'help':
+                print_commands()
+            elif command in ['exit', 'quit']:
                 print("\n👋 Thank you for using MS File Server CLI!")
                 print("Goodbye! 🚀")
                 break
             else:
-                print("❌ Invalid choice. Please enter a number between 1 and 8.")
+                print(f"❌ Unknown command: {command}")
+                print("💡 Type 'help' to see available commands.")
                 
         except KeyboardInterrupt:
             print("\n\n👋 Interrupted by user. Goodbye! 🚀")

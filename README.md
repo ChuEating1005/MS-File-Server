@@ -86,81 +86,97 @@ chmod +x cli.py
 python cli.py
 
 # The CLI will prompt you for server URL (default: http://localhost:8080)
-# Then display a menu with available options
+# Then display available commands and provide a command prompt
 ```
 
-### Interactive Menu
+### Command Interface
 
-Once started, you'll see an interactive menu:
+Once started, you'll see a command prompt interface:
 
 ```
 ============================================================
 🚀 MS File Server - Interactive CLI Tool
 ============================================================
-Welcome to the Microsoft Azure Map Backend File Server!
+Welcome to the Microsoft File Server!
 
 🌐 Enter server URL (press Enter for http://localhost:8080): 
 🔗 Connected to: http://localhost:8080
 ✅ Server connection successful!
 
 📋 Available Commands:
-  1. Upload file
-  2. Download file
-  3. List all files
-  4. Delete file
-  5. Get file info
-  6. Check server health
-  7. Help
-  8. Exit
-----------------------------------------
-👉 Enter your choice (1-8): 
+  upload <file_path>    - Upload a file to the server
+  download <file_name>  - Download a file from the server
+  list                  - List all files on the server
+  delete <file_name>    - Delete a file from the server
+  help                  - Show this help message
+  exit                  - Exit the application
+--------------------------------------------------
+
+$ 
 ```
 
 ### Command Examples
 
-**1. Upload File:**
-- Select option `1`
-- Enter file path: `/path/to/your/file.txt`
-- System uploads and shows confirmation
+**Upload File:**
+```bash
+$ upload demo.txt
+Uploading demo.txt...
+✅ File uploaded successfully: demo.txt
+   📏 Size: 1.2 KB
+   📄 Content Type: text/plain
+```
 
-**2. Download File:**
-- Select option `2`
-- Enter filename: `file.txt`
-- Enter output path (optional): `/path/to/save/`
+**Download File:**
+```bash
+$ download demo.txt
+Downloading demo.txt...
+✅ File downloaded to: demo.txt
+```
 
-**3. List Files:**
-- Select option `3`
-- View formatted table of all files
+**List Files:**
+```bash
+$ list
+📂 Found 2 file(s):
 
-**4. Delete File:**
-- Select option `4`
-- Enter filename: `file.txt`
-- Confirm deletion: `yes`
+Name                            Size         Last Modified        Content Type
+===============================================================================================
+demo.txt                        1.2 KB       2024-01-15 10:30:25  text/plain
+image.jpg                       245.6 KB     2024-01-15 10:32:18  image/jpeg
+```
 
-**5. Get File Info:**
-- Select option `5`
-- Enter filename: `file.txt`
-- View detailed file metadata
+**Delete File:**
+```bash
+$ delete demo.txt
+⚠️ Are you sure you want to delete 'demo.txt'? (yes/no): yes
+✅ File deleted successfully: demo.txt
+```
 
-**6. Health Check:**
-- Select option `6`
-- Check server connectivity and status
+**Help:**
+```bash
+$ help
+📋 Available Commands:
+  upload <file_path>    - Upload a file to the server
+  download <file_name>  - Download a file from the server
+  list                  - List all files on the server
+  delete <file_name>    - Delete a file from the server
+  help                  - Show this help message
+  exit                  - Exit the application
+```
 
-**7. Help:**
-- Select option `7`
-- View detailed command descriptions
-
-**8. Exit:**
-- Select option `8`
-- Safely exit the application
+**Exit:**
+```bash
+$ exit
+👋 Thank you for using MS File Server CLI!
+Goodbye! 🚀
+```
 
 ### Features
 
-- 🎯 **Interactive Interface**: No need to remember command syntax
+- 🎯 **Direct Command Interface**: Type commands directly like a shell
 - 🔗 **Dynamic Server Connection**: Choose server URL at startup
-- ✅ **Input Validation**: Prevents empty inputs and invalid choices
-- 🛡️ **Safe Operations**: Confirmation required for destructive actions
-- 🎨 **Rich Output**: Emojis and formatting for better user experience
+- ✅ **Command Parsing**: Intelligent argument parsing and validation
+- 🛡️ **Safe Operations**: Confirmation required for file deletion
+- 🎨 **Clean Output**: Clear formatting and user-friendly messages
 - ⌨️ **Keyboard Interrupt**: Graceful exit with Ctrl+C
 - 📊 **Formatted Display**: Human-readable file sizes and organized tables
 
@@ -280,14 +296,12 @@ echo "Hello World" > test.txt
 # Start interactive CLI
 python cli.py
 
-# Follow the interactive prompts:
-# 1. Choose option 1 (Upload file)
-# 2. Enter: test.txt
-# 3. Choose option 3 (List all files) 
-# 4. Choose option 5 (Get file info) and enter: test.txt
-# 5. Choose option 2 (Download file) and enter: test.txt
-# 6. Choose option 4 (Delete file) and enter: test.txt
-# 7. Choose option 8 (Exit)
+# Execute commands directly:
+# $ upload test.txt
+# $ list
+# $ download test.txt
+# $ delete test.txt
+# $ exit
 ```
 
 ### Health Monitoring
